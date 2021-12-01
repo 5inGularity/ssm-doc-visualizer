@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<body>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
+    <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
+    <script src="js-yaml.min.js"></script>
+    <div>
+        <label for="fileInput">Choose SSM document to visualize: </label>
+        <input type="file" id="fileInput" name="fileInput" accept=".yaml, .yml">
+    </div>
+    <div id="graph"></div>
+    <script>
+
+        function loadDocument() {
+            var file = document.getElementById('fileInput').files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.readAsText(file, "UTF-8");
+                reader.onload = function (evt) {
+                    try {
+                        var yaml = jsyaml.load(evt.target.result)
+                        console.log(yaml)
+                        render(yaml)
+                    } catch (e) {
+                        console.log("Error loading yaml from file", file, e)
+                    }
+                }
+            }
+        }
+
+        function render(doc) {
+            const dotLines = [];
+            dotLines.push('digraph {');
+            dotLines.push('node [style="filled"]');
+            let steps = doc.mainSteps;
+            for (let i = 0; i < steps.length; i++) {
+                dotLines.push(steps[i].name + " ")
+            }
+            for (let i = 0; i < steps.length - 1; i++) {
+                dotLines.push(steps[i].name + " -> " + steps[i + 1].name + " ")
+            }
+            dotLines.push('}')
+
+            console.log(dotLines.join('\n'));
+
+            var graphviz = d3.select("#graph").graphviz();
+            graphviz.renderDot(dotLines.join(''));
+        }
+
+        const fileInput = document.getElementById('fileInput')
+        fileInput.addEventListener("change", loadDocument)
+    </script>
