@@ -36,7 +36,9 @@
             dotLines.push('node [style="filled"]');
             let steps = doc.mainSteps;
             for (let i = 0; i < steps.length; i++) {
-                dotLines.push(steps[i].name + " ")
+                let shape = steps[i].isEnd ? "oval" : "rectangle";
+                let label = steps[i].name + '<br/><font point-size="10">' + steps[i].action + '</font>'
+                dotLines.push(steps[i].name + '[shape="' + shape + '" label=<' + label + '>]')
             }
             for (let i = 0; i < steps.length; i++) {
                 if (steps[i].action == "aws:branch") {
