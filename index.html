@@ -22,10 +22,10 @@
                     try {
                         var yaml = jsyaml.load(evt.target.result)
                         console.log(yaml)
-                        render(yaml)
                     } catch (e) {
                         console.log("Error loading yaml from file", file, e)
                     }
+                    render(yaml)
                 }
             }
         }
@@ -39,10 +39,24 @@
                 dotLines.push(steps[i].name + " ")
             }
             for (let i = 0; i < steps.length; i++) {
-                if (steps[i].nextStep) {
-                    dotLines.push(steps[i].name + " -> " + steps[i].nextStep + " ")
-                } else if (i < steps.length - 1) {
-                    dotLines.push(steps[i].name + " -> " + steps[i + 1].name + " ")
+                if (steps[i].action == "aws:branch") {
+                    let choices = steps[i].inputs.Choices
+                    for (let j = 0; j < choices.length; j++) {
+                        dotLines.push(steps[i].name + " -> " + choices[j].NextStep + " ")
+                    }
+                    if (steps[i].inputs.Default) {
+                        dotLines.push(steps[i].name + " -> " + steps[i].inputs.Default + " ")
+                    } else if (steps[i].nextStep) {
+                        dotLines.push(steps[i].name + " -> " + steps[i].nextStep + " ")
+                    } else if (i < steps.length - 1) {
+                        dotLines.push(steps[i].name + " -> " + steps[i + 1].name + " ")
+                    }
+                } else {
+                    if (steps[i].nextStep) {
+                        dotLines.push(steps[i].name + " -> " + steps[i].nextStep + " ")
+                    } else if (i < steps.length - 1) {
+                        dotLines.push(steps[i].name + " -> " + steps[i + 1].name + " ")
+                    }
                 }
             }
             dotLines.push('}')
