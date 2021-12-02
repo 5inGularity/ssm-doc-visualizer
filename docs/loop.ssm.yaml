@@ -1,0 +1,18 @@
+schemaVersion: "0.3"
+description: Document with loops
+
+mainSteps:
+- name: one
+  action: aws:pause
+  inputs: {}
+  nextStep: three
+
+- name: two
+  action: aws:pause
+  inputs: {}
+
+- name: three
+  action: aws:pause
+  inputs: {}
+  nextStep: two
+

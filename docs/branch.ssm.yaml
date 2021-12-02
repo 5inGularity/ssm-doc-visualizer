@@ -1,0 +1,46 @@
+schemaVersion: "0.3"
+description: Document with branches
+
+mainSteps:
+- name: one
+  action: aws:pause
+  inputs: {}
+
+- name: two
+  action: aws:branch
+  inputs:
+    Choices:
+        - NextStep: four
+          Variable: true
+          BooleanEquals: true
+        - NextStep: five
+          Variable: true
+          BooleanEquals: false
+
+- name: three
+  action: aws:pause
+  inputs: {}
+
+- name: four
+  action: aws:pause
+  inputs: {}
+
+- name: five
+  action: aws:branch
+  inputs:
+    Choices:
+      - NextStep: seven
+        Variable: true
+        BooleanEquals: true
+      - NextStep: six
+        Variable: true
+        BooleanEquals: false
+    Default: four
+
+- name: six
+  action: aws:pause
+  inputs: {}
+  
+- name: seven
+  action: aws:pause
+  inputs: {}

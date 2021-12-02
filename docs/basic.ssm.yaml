@@ -1,0 +1,15 @@
+schemaVersion: "0.3"
+description: Basic flow
+
+mainSteps:
+- name: one
+  action: aws:pause
+  inputs: {}
+
+- name: two
+  action: aws:pause
+  inputs: {}
+
+- name: three
+  action: aws:pause
+  inputs: {}
