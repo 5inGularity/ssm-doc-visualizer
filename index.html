@@ -42,20 +42,22 @@
                 if (steps[i].action == "aws:branch") {
                     let choices = steps[i].inputs.Choices
                     for (let j = 0; j < choices.length; j++) {
-                        dotLines.push(steps[i].name + " -> " + choices[j].NextStep + " ")
+                        let operator = Object.keys(choices[j]).filter(e => e != "NextStep" && e != "Variable")[0]
+                        let label = choices[j].Variable + " " + operator + " " + choices[j][operator]
+                        dotLines.push(steps[i].name + " -> " + choices[j].NextStep + ' [label="' + label + '"]')
                     }
                     if (steps[i].inputs.Default) {
-                        dotLines.push(steps[i].name + " -> " + steps[i].inputs.Default + " ")
+                        dotLines.push(steps[i].name + " -> " + steps[i].inputs.Default + ' [label="default"] ')
                     } else if (steps[i].nextStep) {
-                        dotLines.push(steps[i].name + " -> " + steps[i].nextStep + " ")
+                        dotLines.push(steps[i].name + " -> " + steps[i].nextStep)
                     } else if (i < steps.length - 1) {
-                        dotLines.push(steps[i].name + " -> " + steps[i + 1].name + " ")
+                        dotLines.push(steps[i].name + " -> " + steps[i + 1].name)
                     }
                 } else {
                     if (steps[i].nextStep) {
-                        dotLines.push(steps[i].name + " -> " + steps[i].nextStep + " ")
+                        dotLines.push(steps[i].name + " -> " + steps[i].nextStep)
                     } else if (i < steps.length - 1) {
-                        dotLines.push(steps[i].name + " -> " + steps[i + 1].name + " ")
+                        dotLines.push(steps[i].name + " -> " + steps[i + 1].name)
                     }
                 }
             }
@@ -64,7 +66,7 @@
             console.log(dotLines.join('\n'));
 
             var graphviz = d3.select("#graph").graphviz();
-            graphviz.renderDot(dotLines.join(''));
+            graphviz.renderDot(dotLines.join('\n'));
         }
 
         const fileInput = document.getElementById('fileInput')
