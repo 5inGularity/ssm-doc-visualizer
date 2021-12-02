@@ -38,8 +38,12 @@
             for (let i = 0; i < steps.length; i++) {
                 dotLines.push(steps[i].name + " ")
             }
-            for (let i = 0; i < steps.length - 1; i++) {
-                dotLines.push(steps[i].name + " -> " + steps[i + 1].name + " ")
+            for (let i = 0; i < steps.length; i++) {
+                if (steps[i].nextStep) {
+                    dotLines.push(steps[i].name + " -> " + steps[i].nextStep + " ")
+                } else if (i < steps.length - 1) {
+                    dotLines.push(steps[i].name + " -> " + steps[i + 1].name + " ")
+                }
             }
             dotLines.push('}')
 
