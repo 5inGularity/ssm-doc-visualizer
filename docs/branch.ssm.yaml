@@ -14,8 +14,9 @@ mainSteps:
           Variable: true
           BooleanEquals: true
         - NextStep: five
-          Variable: true
-          BooleanEquals: false
+          Not:
+            Variable: true
+            BooleanEquals: false
 
 - name: three
   action: aws:pause
@@ -30,11 +31,17 @@ mainSteps:
   inputs:
     Choices:
       - NextStep: seven
-        Variable: true
-        BooleanEquals: true
+        And:
+          - Variable: true
+            BooleanEquals: true
+          - Variable: "{{var}}"
+            BooleanEquals: false
       - NextStep: six
-        Variable: true
-        BooleanEquals: false
+        Or:
+          - Variable: true
+            BooleanEquals: false
+          - Variable: "{{var}}"
+            BooleanEquals: false
     Default: four
 
 - name: six

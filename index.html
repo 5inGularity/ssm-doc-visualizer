@@ -10,7 +10,7 @@
         <label for="fileInput">Choose SSM document to visualize: </label>
         <input type="file" id="fileInput" name="fileInput" accept=".yaml, .yml">
     </div>
-    <div id="graph"></div>
+    <div id="graph" style="text-align: center;"></div>
     <script>
 
         function loadDocument() {
@@ -30,6 +30,11 @@
             }
         }
 
+        function renderCondition(condition) {
+            let operator = Object.keys(condition).filter(e => e != "NextStep" && e != "Variable")[0]
+            return condition.Variable + " " + operator + " " + condition[operator]
+        }
+
         function render(doc) {
             const dotLines = [];
             dotLines.push('digraph {');
@@ -44,8 +49,16 @@
                 if (steps[i].action == "aws:branch") {
                     let choices = steps[i].inputs.Choices
                     for (let j = 0; j < choices.length; j++) {
-                        let operator = Object.keys(choices[j]).filter(e => e != "NextStep" && e != "Variable")[0]
-                        let label = choices[j].Variable + " " + operator + " " + choices[j][operator]
+                        let label = ""
+                        if (choices[j].Not) {
+                            label = "Not " + renderCondition(choices[j].Not)
+                        } else if (choices[j].And) {
+                            label = choices[j].And.map(c => renderCondition(c)).join(" AND ")
+                        } else if (choices[j].Or) {
+                            label = choices[j].Or.map(c => renderCondition(c)).join(" OR ")
+                        } else {
+                            label = renderCondition(choices[j])
+                        }
                         dotLines.push(steps[i].name + " -> " + choices[j].NextStep + ' [label="' + label + '"]')
                     }
                     if (steps[i].inputs.Default) {
