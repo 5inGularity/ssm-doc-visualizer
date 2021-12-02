@@ -61,7 +61,9 @@
                         }
                         dotLines.push(steps[i].name + " -> " + choices[j].NextStep + ' [label="' + label + '"]')
                     }
-                    if (steps[i].inputs.Default) {
+                    if (steps[i].isEnd) {
+                        continue
+                    } else if (steps[i].inputs.Default) {
                         dotLines.push(steps[i].name + " -> " + steps[i].inputs.Default + ' [label="default"] ')
                     } else if (steps[i].nextStep) {
                         dotLines.push(steps[i].name + " -> " + steps[i].nextStep)
