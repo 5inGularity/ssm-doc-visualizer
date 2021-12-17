@@ -21,6 +21,7 @@
                 reader.onload = function (evt) {
                     try {
                         var yaml = jsyaml.load(evt.target.result)
+                        document.getElementById('fileInput').value = ""
                         console.log(yaml)
                     } catch (e) {
                         console.log("Error loading yaml from file", file, e)
