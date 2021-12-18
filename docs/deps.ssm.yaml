@@ -1,0 +1,49 @@
+schemaVersion: "0.3"
+description: Data dependencies
+
+parameters:
+  role:
+    type: String
+
+mainSteps:
+  - name: first
+    action: aws:executeScript
+    inputs:
+      Runtime: python3.7
+    outputs:
+      - Name: First
+        Type: String
+        Selector: $.First
+
+  - name: nodeps
+    action: aws:pause
+    inputs: {}
+
+  - name: dep_on_first
+    action: aws:branch
+    inputs:
+      Choices:
+        - Variable: "{{first.First}}"
+          StringEquals: "hello"
+
+  - name: dep_on_param
+    action: aws:executeScript
+    inputs:
+      Runtime: python3.7
+      InputPayload: 
+        role: "{{role}}"
+    outputs:
+      - Name: id
+        Type: String
+
+  - name: dep_on_two
+    action: aws:executeScript
+    inputs:
+      Runtime: python3.7
+      InputPayload:
+        first: "first is {{first.First}}"
+        second: "second is {{dep_on_param.id}}"
+
+  
+
+      

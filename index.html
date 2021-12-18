@@ -36,8 +36,30 @@
             return condition.Variable + " " + operator + " " + condition[operator]
         }
 
+
+        function leaves(o, l) {
+            if (typeof o == 'string') {
+                l.push(o);
+                return;
+            }
+            if (Array.isArray(o)) {
+                for (let i = 0; i < o.length; i++) {
+                    leaves(o[i], l);
+                }
+                return;
+            }
+            if (typeof o == 'object') {
+                let values = Object.values(o)
+                for (let i = 0; i < values.length; i++) {
+                    leaves(values[i], l);
+                }
+                return;
+            }
+        }
+
         function render(doc) {
             const dotLines = [];
+            const OUTPUT_REF_PATTERN = /{{([a-zA-Z0-9_]+\.[a-zA-Z0-9-_]+)?}}/g;
             dotLines.push('digraph {');
             dotLines.push('node [style="filled"]');
             let steps = doc.mainSteps;
@@ -47,6 +69,7 @@
                 dotLines.push(steps[i].name + '[shape="' + shape + '" label=<' + label + '>]')
             }
             for (let i = 0; i < steps.length; i++) {
+
                 if (steps[i].action == "aws:branch") {
                     let choices = steps[i].inputs.Choices
                     for (let j = 0; j < choices.length; j++) {
@@ -77,6 +100,15 @@
                     } else if (i < steps.length - 1) {
                         dotLines.push(steps[i].name + " -> " + steps[i + 1].name)
                     }
+                }
+
+                let l = [];
+                leaves(steps[i].inputs, l);
+                let deps = l.filter(x => x.match(OUTPUT_REF_PATTERN)).map(x => Array.from(x.matchAll(OUTPUT_REF_PATTERN))).flat().map(x => x[0]);
+                for (let j = 0; j < deps.length; j++) {
+                    let depStep = deps[j].match(/(?<={{).+(?=\.)/)[0];
+                    let depOutput = deps[j].match(/(?<=\.).+(?=}})/)[0];
+                    dotLines.push(depStep + " -> " + steps[i].name + ' [style="dashed" label="' + depOutput + '"]')
                 }
             }
             dotLines.push('}')
