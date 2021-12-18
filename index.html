@@ -10,22 +10,12 @@
     <script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
     <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
     <script src="js-yaml.min.js"></script>
-    <!-- <div class="container">
-        <header class="header">
-            <label for="fileInput">Choose SSM document to visualize: </label>
-            <input type="file" id="fileInput" name="fileInput" accept=".yaml, .yml">
-        </header>
-        <section class="content-body">
-            <div id="graph" style="text-align: center;"></div>
-        </section>
-        <footer class="footer">
-            <p>This is the footer.</p>
-        </footer>
-    </div> -->
     <div class="container">
         <header class="header">
             <label for="fileInput">Choose SSM document to visualize: </label>
             <input type="file" id="fileInput" name="fileInput" accept=".yaml, .yml">
+            <label for="drawDeps">Show data dependencies? (reload doc to reflect change)</label>
+            <input type="checkbox" id="drawDeps" name="drawDeps">
         </header>
         <section class="content">
             <div class="content-body">
@@ -124,13 +114,15 @@
                     }
                 }
 
-                let l = [];
-                leaves(steps[i].inputs, l);
-                let deps = l.filter(x => x.match(OUTPUT_REF_PATTERN)).map(x => Array.from(x.matchAll(OUTPUT_REF_PATTERN))).flat().map(x => x[0]);
-                for (let j = 0; j < deps.length; j++) {
-                    let depStep = deps[j].match(/(?<={{).+(?=\.)/)[0];
-                    let depOutput = deps[j].match(/(?<=\.).+(?=}})/)[0];
-                    dotLines.push(depStep + " -> " + steps[i].name + ' [style="dashed" label="' + depOutput + '"]')
+                if (document.getElementById('drawDeps').checked) {
+                    let l = [];
+                    leaves(steps[i].inputs, l);
+                    let deps = l.filter(x => x.match(OUTPUT_REF_PATTERN)).map(x => Array.from(x.matchAll(OUTPUT_REF_PATTERN))).flat().map(x => x[0]);
+                    for (let j = 0; j < deps.length; j++) {
+                        let depStep = deps[j].match(/(?<={{).+(?=\.)/)[0];
+                        let depOutput = deps[j].match(/(?<=\.).+(?=}})/)[0];
+                        dotLines.push(depStep + " -> " + steps[i].name + ' [style="dashed" label="' + depOutput + '"]')
+                    }
                 }
             }
             dotLines.push('}')
