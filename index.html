@@ -1,16 +1,38 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 
+<head>
+    <link rel="stylesheet" href="style.css">
+</head>
+
 <body>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
     <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
     <script src="js-yaml.min.js"></script>
-    <div>
-        <label for="fileInput">Choose SSM document to visualize: </label>
-        <input type="file" id="fileInput" name="fileInput" accept=".yaml, .yml">
+    <!-- <div class="container">
+        <header class="header">
+            <label for="fileInput">Choose SSM document to visualize: </label>
+            <input type="file" id="fileInput" name="fileInput" accept=".yaml, .yml">
+        </header>
+        <section class="content-body">
+            <div id="graph" style="text-align: center;"></div>
+        </section>
+        <footer class="footer">
+            <p>This is the footer.</p>
+        </footer>
+    </div> -->
+    <div class="container">
+        <header class="header">
+            <label for="fileInput">Choose SSM document to visualize: </label>
+            <input type="file" id="fileInput" name="fileInput" accept=".yaml, .yml">
+        </header>
+        <section class="content">
+            <div class="content-body">
+                <div id="graph" style="text-align: center; height: 100%"></div>
+            </div>
+        </section>
     </div>
-    <div id="graph" style="text-align: center;"></div>
     <script>
 
         function loadDocument() {
@@ -116,7 +138,9 @@
             console.log(dotLines.join('\n'));
 
             var graphviz = d3.select("#graph").graphviz();
-            graphviz.renderDot(dotLines.join('\n'));
+            graphviz.renderDot(dotLines.join('\n'))
+                .width(document.getElementById('graph').clientWidth)
+                .height(document.getElementById('graph').clientHeight);
         }
 
         const fileInput = document.getElementById('fileInput')
