@@ -1,16 +1,28 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 
+<head>
+    <link rel="stylesheet" href="style.css">
+</head>
+
 <body>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
     <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
     <script src="js-yaml.min.js"></script>
-    <div>
-        <label for="fileInput">Choose SSM document to visualize: </label>
-        <input type="file" id="fileInput" name="fileInput" accept=".yaml, .yml">
+    <div class="container">
+        <header class="header">
+            <label for="fileInput">Choose SSM document to visualize: </label>
+            <input type="file" id="fileInput" name="fileInput" accept=".yaml, .yml">
+            <label for="drawDeps">Show data dependencies? (reload doc to reflect change)</label>
+            <input type="checkbox" id="drawDeps" name="drawDeps">
+        </header>
+        <section class="content">
+            <div class="content-body">
+                <div id="graph" style="text-align: center; height: 100%"></div>
+            </div>
+        </section>
     </div>
-    <div id="graph" style="text-align: center;"></div>
     <script>
 
         function loadDocument() {
@@ -36,8 +48,30 @@
             return condition.Variable + " " + operator + " " + condition[operator]
         }
 
+
+        function leaves(o, l) {
+            if (typeof o == 'string') {
+                l.push(o);
+                return;
+            }
+            if (Array.isArray(o)) {
+                for (let i = 0; i < o.length; i++) {
+                    leaves(o[i], l);
+                }
+                return;
+            }
+            if (typeof o == 'object') {
+                let values = Object.values(o)
+                for (let i = 0; i < values.length; i++) {
+                    leaves(values[i], l);
+                }
+                return;
+            }
+        }
+
         function render(doc) {
             const dotLines = [];
+            const OUTPUT_REF_PATTERN = /{{([a-zA-Z0-9_]+\.[a-zA-Z0-9-_]+)?}}/g;
             dotLines.push('digraph {');
             dotLines.push('node [style="filled"]');
             let steps = doc.mainSteps;
@@ -47,6 +81,7 @@
                 dotLines.push(steps[i].name + '[shape="' + shape + '" label=<' + label + '>]')
             }
             for (let i = 0; i < steps.length; i++) {
+
                 if (steps[i].action == "aws:branch") {
                     let choices = steps[i].inputs.Choices
                     for (let j = 0; j < choices.length; j++) {
@@ -78,13 +113,26 @@
                         dotLines.push(steps[i].name + " -> " + steps[i + 1].name)
                     }
                 }
+
+                if (document.getElementById('drawDeps').checked) {
+                    let l = [];
+                    leaves(steps[i].inputs, l);
+                    let deps = l.filter(x => x.match(OUTPUT_REF_PATTERN)).map(x => Array.from(x.matchAll(OUTPUT_REF_PATTERN))).flat().map(x => x[0]);
+                    for (let j = 0; j < deps.length; j++) {
+                        let depStep = deps[j].match(/(?<={{).+(?=\.)/)[0];
+                        let depOutput = deps[j].match(/(?<=\.).+(?=}})/)[0];
+                        dotLines.push(depStep + " -> " + steps[i].name + ' [style="dashed" label="' + depOutput + '"]')
+                    }
+                }
             }
             dotLines.push('}')
 
             console.log(dotLines.join('\n'));
 
             var graphviz = d3.select("#graph").graphviz();
-            graphviz.renderDot(dotLines.join('\n'));
+            graphviz.renderDot(dotLines.join('\n'))
+                .width(document.getElementById('graph').clientWidth)
+                .height(document.getElementById('graph').clientHeight);
         }
 
         const fileInput = document.getElementById('fileInput')
