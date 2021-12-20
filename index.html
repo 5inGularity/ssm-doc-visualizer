@@ -107,13 +107,16 @@
                         dotLines.push(steps[i].name + " -> " + steps[i + 1].name)
                     }
                 } else {
-                    if (steps[i].nextStep) {
+                    if (steps[i].isEnd) {
+                        continue
+                    } else if (steps[i].nextStep) {
                         dotLines.push(steps[i].name + " -> " + steps[i].nextStep)
                     } else if (i < steps.length - 1) {
                         dotLines.push(steps[i].name + " -> " + steps[i + 1].name)
                     }
                 }
-
+            }
+            for (let i = 0; i < steps.length; i++) {
                 if (document.getElementById('drawDeps').checked) {
                     let l = [];
                     leaves(steps[i].inputs, l);
