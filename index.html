@@ -121,7 +121,12 @@
                     let l = [];
                     leaves(steps[i].inputs, l);
                     let deps = l.filter(x => x.match(OUTPUT_REF_PATTERN)).map(x => Array.from(x.matchAll(OUTPUT_REF_PATTERN))).flat().map(x => x[0]);
+                    let depsSeen = []
                     for (let j = 0; j < deps.length; j++) {
+                        if (depsSeen.some(d => d == deps[j])) {
+                            continue;
+                        }
+                        depsSeen.push(deps[j]);
                         let depStep = deps[j].match(/(?<={{).+(?=\.)/)[0];
                         let depOutput = deps[j].match(/(?<=\.).+(?=}})/)[0];
                         dotLines.push(depStep + " -> " + steps[i].name + ' [style="dashed" label="' + depOutput + '"]')
