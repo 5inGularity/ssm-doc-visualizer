@@ -115,6 +115,12 @@
                         dotLines.push(steps[i].name + " -> " + steps[i + 1].name)
                     }
                 }
+                if (steps[i].onFailure && steps[i].onFailure.startsWith('step')) {
+                    dotLines.push(steps[i].name + " -> " + steps[i].onFailure.split('step:')[1] + " [label=onFailure, color=red, style=dotted]")
+                }
+                if (steps[i].onCancel && steps[i].onCancel.startsWith('step')) {
+                    dotLines.push(steps[i].name + " -> " + steps[i].onCancel.split('step:')[1] + " [label=onCancel, color=red, style=dotted]")
+                }
             }
             for (let i = 0; i < steps.length; i++) {
                 if (document.getElementById('drawDeps').checked) {
