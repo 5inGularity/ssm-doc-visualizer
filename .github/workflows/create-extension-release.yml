@@ -1,0 +1,21 @@
+name: create-extension-release
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "19"
+      - run: cd extension
+      - run: npm install -g @vscode/vsce
+      - run: npm install
+      - run: vsce package -o dist/ssm-doc-visualizer-extension.vsix
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: extension/dist/ssm-doc-visualizer-extension.vsix
