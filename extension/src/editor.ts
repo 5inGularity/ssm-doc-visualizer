@@ -81,10 +81,6 @@ export class SsmDocumentVisualizer implements vscode.CustomReadonlyEditorProvide
             <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
             <script src="https://unpkg.com/js-yaml@3.12.0/dist/js-yaml.min.js"></script>
             <div class="container">
-                <header class="header">
-                    <label for="drawDeps">Show data dependencies? (reload doc to reflect change)</label>
-                    <input type="checkbox" id="drawDeps" name="drawDeps">
-                </header>
                 <section class="content">
                     <div class="content-body">
                         <div id="graph" style="text-align: center; height: 100%"></div>
